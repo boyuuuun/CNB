@@ -1,29 +1,26 @@
 package com.example.cnb00;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import net.daum.mf.map.api.MapView;
+
+import java.security.MessageDigest;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public List<User> userList ;
-
-    private void initLoadDB() {
-        DataAdapter mDbHelper = new DataAdapter(getApplicationContext());
-        mDbHelper.createDatabase();
-        mDbHelper.open();
-
-        // db에 있는 값들을 model을 적용해서 넣는다.
-        userList = mDbHelper.getTableData();
-
-        // db 닫기
-        mDbHelper.close();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +30,10 @@ public class MainActivity extends AppCompatActivity {
 
         // *Page for showing company information START* //
         final User getData = userList.get(0); // data gotten by last page.
-
         TextView state_tv, cn_tv, type_tv, field_tv, owner_tv, pn_tv, web_tv; // textview for showing company information
+        //getHashKey();
 
+        // show data
         state_tv = findViewById(R.id.state_tv);
         state_tv.setText(getData.getState());
         cn_tv = findViewById(R.id.cn_tv);
@@ -51,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         web_tv = findViewById(R.id.web_tv);
         web_tv.setText(getData.getWebCite());
 
-        findViewById(R.id.call_btn).setOnClickListener(new View.OnClickListener() { // click calling button
+        // click calling button
+        findViewById(R.id.call_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String pn_str = getData.getPhoneNumber().replaceAll("-","");
@@ -62,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.web_btn).setOnClickListener(new View.OnClickListener() { // click website button
+        // click website button
+        findViewById(R.id.web_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
@@ -72,8 +72,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // show map
+        MapView mapView = new MapView(this);
+        mapView.setDaumMapApiKey("APIKEY");
+        ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
+        mapViewContainer.addView(mapView);
+
+
         // *Page for showing company information END* //
     }
+
+    private void initLoadDB() {
+        DataAdapter mDbHelper = new DataAdapter(getApplicationContext());
+        mDbHelper.createDatabase();
+        mDbHelper.open();
+
+        // db에 있는 값들을 model을 적용해서 넣는다.
+        userList = mDbHelper.getTableData();
+
+        // db 닫기
+        mDbHelper.close();
+    }
+
+    private void getHashKey(){
+        try{
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md;
+                md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                String key = new String(Base64.encode(md.digest(), 0));
+                Log.d("Hash key:", "!!!!!!!"+key+"!!!!!!");
+            }
+        } catch (Exception e){
+            Log.e("name not found", e.toString());
+        }
+    }
+
+
+
 
 }
 

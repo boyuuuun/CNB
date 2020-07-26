@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.cnb00">
 
+    <!-- Kakao Map API (start) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <meta-data
+        android:name="com.kakao.sdk.AppKey"
+        android:value="네이티브 앱 키 입력"/>
+    <!-- Kakao Map API (end) -->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
